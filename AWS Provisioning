@@ -1,0 +1,53 @@
+import boto3
+from botocore.exceptions import ClientError
+
+# Initialize boto3 clients
+iam_client = boto3.client('iam')
+workspaces_client = boto3.client('workspaces')
+
+def check_or_create_user(username):
+    try:
+        # Check if the user exists
+        iam_client.get_user(UserName=username)
+        print(f"User {username} already exists.")
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'NoSuchEntity':
+            # Create a new IAM user
+            iam_client.create_user(UserName=username)
+            print(f"User {username} created.")
+            
+            # Attach a policy to the user
+            iam_client.attach_user_policy(
+                UserName=username,
+                PolicyArn='arn:aws:iam::aws:policy/AmazonWorkSpacesFullAccess'
+            )
+            print(f"Policy attached to {username}.")
+        else:
+            print(f"Unexpected error: {e}")
+
+def create_workspace(username):
+    try:
+        # Create a new WorkSpace
+        workspaces_client.create_workspaces(
+            Workspaces=[
+                {
+                    'DirectoryId': 'd-xxxxxxxxxx',  # Replace with your Directory ID
+                    'UserName': username,
+                    'BundleId': 'wsb-xxxxxxxxx',  # Replace with your Bundle ID
+                    'WorkspaceProperties': {
+                        'RunningMode': 'AUTO_STOP',
+                        'RunningModeAutoStopTimeoutInMinutes': 60
+                    }
+                }
+            ]
+        )
+        print(f"Workspace created for {username}.")
+    except ClientError as e:
+        print(f"Error creating workspace: {e}")
+
+# Replace with the actual username
+username = 'new_user'
+
+# Check or create user and then create a workspace
+check_or_create_user(username)
+create_workspace(username)
