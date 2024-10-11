@@ -1,0 +1,48 @@
+#here is my example scripts of using a wide variety of Pandas tools descriptive statistics, groupby operations, pivot tables, correlation matrix, applying functions, filtering, and merging DataFrames. 
+import pandas as pd
+import numpy as np
+
+# Load data
+data = pd.read_csv('path_to_your_data.csv')
+
+# Display basic info
+print(data.info())
+
+# Handling missing values
+data.fillna(data.mean(), inplace=True)
+
+# Feature engineering
+data['new_feature'] = data['feature1'] * data['feature2']
+
+# Descriptive statistics
+print(data.describe())
+
+# Groupby operations
+grouped_data = data.groupby('category_column').agg({
+    'numerical_column1': 'mean',
+    'numerical_column2': 'sum'
+})
+print(grouped_data)
+
+# Pivot table
+pivot_table = data.pivot_table(index='category_column', columns='subcategory_column', values='value_column', aggfunc='mean')
+print(pivot_table)
+
+# Correlation matrix
+correlation_matrix = data.corr()
+print(correlation_matrix)
+
+# Applying functions
+data['log_feature'] = data['feature1'].apply(np.log)
+
+# Filtering data
+filtered_data = data[(data['feature1'] > 10) & (data['feature2'] < 20)]
+print(filtered_data)
+
+# Merge DataFrames
+other_data = pd.read_csv('path_to_other_data.csv')
+merged_data = pd.merge(data, other_data, on='common_column')
+print(merged_data.head())
+
+# Export data
+data.to_csv('processed_data.csv', index=False)
